@@ -6,14 +6,20 @@ namespace MarketplaceDDD.Domain
     {
         public Guid Id { get; }
 
-        public ClassifiedAd(Guid id)
+        public ClassifiedAd(Guid id, Guid ownerId)
         {
             if (id == default)
             {
                 throw new ArgumentException("Identity must be specified", nameof(id));
             }
 
+            if (ownerId == default)
+            {
+                throw new ArgumentException("Owner id must be specified", nameof(ownerId));
+            }
+
             Id = id;
+            _ownerId = ownerId;
         }
 
         public void SetTitle(string title) => _title = title;
