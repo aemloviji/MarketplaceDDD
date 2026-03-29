@@ -12,15 +12,15 @@ namespace MarketplaceDDD.Domain
             _ownerId = ownerId;
         }
 
-        public void SetTitle(string title) => _title = title;
+        public void SetTitle(ClassifiedAdTitle title) => _title = title;
 
-        public void UpdateText(string text) => _text = text;
+        public void UpdateText(ClassifiedAdText text) => _text = text;
 
-        public void UpdatePrice(decimal price) => _price = price;
+        public void UpdatePrice(Price price) => _price = price;
 
         private UserId _ownerId;
-        private string _title;
-        private string _text;
-        private decimal _price;
+        private ClassifiedAdTitle _title;
+        private ClassifiedAdText _text;
+        private Price _price;
     }
 }
