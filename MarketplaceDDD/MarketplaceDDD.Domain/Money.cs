@@ -1,41 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using MarketplaceDDD.Framework;
 
 namespace MarketplaceDDD.Domain
 {
-    public class Money : IEquatable<Money?>
+    public class Money : Value<Money>
     {
-        private decimal Amount { get; }
+        public decimal Amount { get; }
 
         public Money(decimal amount)
         {
             Amount = amount;
         }
 
-        public override bool Equals(object? obj)
-        {
-            return Equals(obj as Money);
-        }
+        public Money Add(Money summand) => new Money(Amount + summand.Amount);
 
-        public bool Equals(Money? other)
-        {
-            return !(other is null) &&
-                   Amount == other.Amount;
-        }
+        public Money Subtract(Money subtrahend) => new Money(Amount - subtrahend.Amount);
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Amount);
-        }
+        public static Money operator +(Money summand1, Money summand2) => summand1.Add(summand2);
 
-        public static bool operator ==(Money? left, Money? right)
-        {
-            return EqualityComparer<Money>.Default.Equals(left, right);
-        }
-
-        public static bool operator !=(Money? left, Money? right)
-        {
-            return !(left == right);
-        }
+        public static Money operator -(Money minuend, Money subtrahend) => minuend.Subtract(subtrahend);
     }
 }
