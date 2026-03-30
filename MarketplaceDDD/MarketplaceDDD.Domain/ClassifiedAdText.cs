@@ -12,18 +12,4 @@ namespace MarketplaceDDD.Domain
 
         public static implicit operator string(ClassifiedAdText text) => text.Value;
     }
-
-    public class temp
-    {
-        public void A()
-        {
-            ClassifiedAdText classifiedAdText = ClassifiedAdText.FromString("text");
-
-
-            var str = "";
-            str += classifiedAdText;
-
-            string aaa = classifiedAdText;
-        }
-    }
 }
