@@ -19,32 +19,55 @@
             Id = id;
             OwnerId = ownerId;
             State = ClassifiedAdState.Inactive;
+            EnsureValidState();
         }
 
-        public void SetTitle(ClassifiedAdTitle title) => Title = title;
+        public void SetTitle(ClassifiedAdTitle title)
+        {
+            Title = title;
+            EnsureValidState();
+        }
 
-        public void UpdateText(ClassifiedAdText text) => Text = text;
+        public void UpdateText(ClassifiedAdText text)
+        {
+            Text = text;
+            EnsureValidState();
+        }
 
-        public void UpdatePrice(Price price) => Price = price;
+        public void UpdatePrice(Price price)
+        {
+            Price = price;
+            EnsureValidState();
+        }
 
         public void RequestToPublish()
         {
-            if (Title is null)
-            {
-                throw new InvalidEntityStateException(this, "title cannot be empty");
-            }
-
-            if (Text is null)
-            {
-                throw new InvalidEntityStateException(this, "text cannot be empty");
-            }
-
-            if (Price?.Amount == 0)
-            {
-                throw new InvalidEntityStateException(this, "price cannot be zero");
-            }
-
             State = ClassifiedAdState.PendingReview;
+            EnsureValidState();
+        }
+
+        private void EnsureValidState()
+        {
+            var valid =
+                Id != null &&
+                OwnerId != null &&
+                (State switch
+                {
+                    ClassifiedAdState.PendingReview =>
+                        Title != null &&
+                        Text != null &&
+                        Price?.Amount > 0,
+                    ClassifiedAdState.Active =>
+                        Title != null &&
+                        Text != null &&
+                        Price?.Amount > 0,
+                    _ => true
+                });
+
+            if (!valid)
+            {
+                throw new InvalidEntityStateException(this, $"Post-checks failed in state {State}");
+            }
         }
 
         public enum ClassifiedAdState
