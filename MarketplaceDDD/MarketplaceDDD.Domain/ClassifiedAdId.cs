@@ -11,5 +11,7 @@ namespace MarketplaceDDD.Domain
         {
             _value = value;
         }
+
+        public static implicit operator Guid(ClassifiedAdId self) => self._value;
     }
 }
