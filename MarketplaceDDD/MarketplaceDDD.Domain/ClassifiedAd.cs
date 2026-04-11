@@ -16,61 +16,64 @@ namespace MarketplaceDDD.Domain
 
         public ClassifiedAdState State { get; private set; }
 
-        public ClassifiedAd(ClassifiedAdId id, UserId ownerId)
-        {
-            Id = id;
-            OwnerId = ownerId;
-            State = ClassifiedAdState.Inactive;
-            EnsureValidState();
-            Raise(new Events.ClassifiedAdCreated
+        public UserId ApprovedBy { get; private set; }
+
+        public ClassifiedAd(ClassifiedAdId id, UserId ownerId) =>
+            Apply(new Events.ClassifiedAdCreated
             {
                 Id = id,
                 OwnerId = ownerId
             });
-        }
 
-        public void SetTitle(ClassifiedAdTitle title)
-        {
-            Title = title;
-            EnsureValidState();
-            Raise(new Events.ClassifiedAdTitleChanged
+        public void SetTitle(ClassifiedAdTitle title) =>
+            Apply(new Events.ClassifiedAdTitleChanged
             {
                 Id = Id,
                 Title = title
             });
-        }
 
-        public void UpdateText(ClassifiedAdText text)
-        {
-            Text = text;
-            EnsureValidState();
-            Raise(new Events.ClassifiedAdTextUpdated
+        public void UpdateText(ClassifiedAdText text) =>
+            Apply(new Events.ClassifiedAdTextUpdated
             {
                 Id = Id,
                 AdText = text
             });
-        }
 
-        public void UpdatePrice(Price price)
-        {
-            Price = price;
-            EnsureValidState();
-            Raise(new Events.ClassifiedAdPriceUpdated
+        public void UpdatePrice(Price price) =>
+            Apply(new Events.ClassifiedAdPriceUpdated
             {
                 Id = Id,
                 Price = price.Amount,
                 CurrencyCode = price.Currency.CurrencyCode
             });
-        }
 
-        public void RequestToPublish()
+        public void RequestToPublish() => Apply(new Events.ClassifiedAdSentForReview { Id = Id });
+
+        protected override void When(object @event)
         {
-            State = ClassifiedAdState.PendingReview;
-            EnsureValidState();
-            Raise(new Events.ClassifiedAdSentForReview { Id = Id });
+            switch (@event)
+            {
+                case Events.ClassifiedAdCreated e:
+                    Id = new ClassifiedAdId(e.Id);
+                    OwnerId = new UserId(e.OwnerId);
+                    State = ClassifiedAdState.Inactive;
+                    break;
+                case Events.ClassifiedAdTitleChanged e:
+                    Title = ClassifiedAdTitle.FromString(e.Title);
+                    break;
+                case Events.ClassifiedAdTextUpdated e:
+                    Text = new ClassifiedAdText(e.AdText);
+                    break;
+                case Events.ClassifiedAdPriceUpdated e:
+                    Price = new Price(e.Price, e.CurrencyCode);
+                    break;
+                case Events.ClassifiedAdSentForReview e:
+                    State = ClassifiedAdState.PendingReview;
+                    break;
+            }
         }
 
-        private void EnsureValidState()
+        protected override void EnsureValidState()
         {
             var valid =
                 Id != null &&
@@ -84,7 +87,8 @@ namespace MarketplaceDDD.Domain
                     ClassifiedAdState.Active =>
                         Title != null &&
                         Text != null &&
-                        Price?.Amount > 0,
+                        Price?.Amount > 0 &&
+                        ApprovedBy != null,
                     _ => true
                 });
 
