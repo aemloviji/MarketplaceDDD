@@ -59,7 +59,7 @@ namespace MarketplaceDDD.Domain
                     State = ClassifiedAdState.Inactive;
                     break;
                 case Events.ClassifiedAdTitleChanged e:
-                    Title = ClassifiedAdTitle.FromString(e.Title);
+                    Title = new ClassifiedAdTitle(e.Title);
                     break;
                 case Events.ClassifiedAdTextUpdated e:
                     Text = new ClassifiedAdText(e.AdText);
